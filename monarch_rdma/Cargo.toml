@@ -10,6 +10,7 @@ license = "BSD-3"
 [dependencies]
 anyhow = "1.0.95"
 async-trait = "0.1.86"
+ffi = { package = "ibverbs-sys", version = "0.1.2" }
 hyperactor = { version = "0.0.0", path = "../hyperactor" }
 hyperactor_mesh = { version = "0.0.0", path = "../hyperactor_mesh" }
 ibverbs = "0.7.1"
@@ -20,4 +21,6 @@ tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
 tracing = { version = "0.1.41", features = ["attributes", "valuable"] }
 
 [dev-dependencies]
+buck-resources = "1"
 timed_test = { version = "0.0.0", path = "../timed_test" }
+tracing-subscriber = { version = "0.3.19", features = ["chrono", "env-filter", "json", "local-time", "parking_lot", "registry"] }
