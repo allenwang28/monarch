@@ -1273,8 +1273,8 @@ pub fn derive_named(input: TokenStream) -> TokenStream {
     let mut register = !has_generics;
 
     for attr in &input.attrs {
-        if attr.path().is_ident("named") {
-            if let Ok(meta) = attr.parse_args_with(
+        if attr.path().is_ident("named")
+            && let Ok(meta) = attr.parse_args_with(
                 syn::punctuated::Punctuated::<Meta, syn::Token![,]>::parse_terminated,
             ) {
                 for item in meta {
@@ -1314,7 +1314,6 @@ pub fn derive_named(input: TokenStream) -> TokenStream {
                     }
                 }
             }
-        }
     }
 
     // Create a version of generics with Named bounds for the impl block
@@ -2090,13 +2089,12 @@ pub fn derive_actor(input: TokenStream) -> TokenStream {
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
     let is_passthrough = input.attrs.iter().any(|attr| {
-        if attr.path().is_ident("actor") {
-            if let Ok(meta) = attr.parse_args_with(
+        if attr.path().is_ident("actor")
+            && let Ok(meta) = attr.parse_args_with(
                 syn::punctuated::Punctuated::<syn::Ident, syn::Token![,]>::parse_terminated,
             ) {
                 return meta.iter().any(|ident| ident == "passthrough");
             }
-        }
         false
     });
 

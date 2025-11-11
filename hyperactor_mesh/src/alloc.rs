@@ -516,12 +516,12 @@ impl<A: ?Sized + Send + Alloc> AllocExt for A {
 pub(crate) fn with_unspecified_port_or_any(addr: &ChannelAddr) -> ChannelAddr {
     match addr {
         ChannelAddr::Tcp(socket) => {
-            let mut new_socket = socket.clone();
+            let mut new_socket = *socket;
             new_socket.set_port(0);
             ChannelAddr::Tcp(new_socket)
         }
         ChannelAddr::MetaTls(MetaTlsAddr::Socket(socket)) => {
-            let mut new_socket = socket.clone();
+            let mut new_socket = *socket;
             new_socket.set_port(0);
             ChannelAddr::MetaTls(MetaTlsAddr::Socket(new_socket))
         }
@@ -550,13 +550,13 @@ pub(crate) fn serve_with_config<M: RemoteMessage>(
     let mut original_ip: Option<IpAddr> = None;
     match &mut serve_addr {
         ChannelAddr::Tcp(socket) => {
-            original_ip = Some(socket.ip().clone());
+            original_ip = Some(socket.ip());
             if use_inaddr_any {
                 set_as_inaddr_any(socket);
                 tracing::debug!("binding {} to INADDR_ANY", original_ip.as_ref().unwrap(),);
             }
             if socket.port() == 0 {
-                socket.set_port(next_allowed_port(socket.ip().clone())?);
+                socket.set_port(next_allowed_port(socket.ip())?);
             }
         }
         _ => {
@@ -573,14 +573,10 @@ pub(crate) fn serve_with_config<M: RemoteMessage>(
     let (mut bound, rx) = channel::serve(serve_addr)?;
 
     // Restore the original IP address if we used INADDR_ANY.
-    match &mut bound {
-        ChannelAddr::Tcp(socket) => {
-            if use_inaddr_any {
-                socket.set_ip(original_ip.unwrap());
-            }
+    if let ChannelAddr::Tcp(socket) = &mut bound
+        && use_inaddr_any {
+            socket.set_ip(original_ip.unwrap());
         }
-        _ => (),
-    }
 
     Ok((bound, rx))
 }

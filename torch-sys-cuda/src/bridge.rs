@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#[allow(dead_code)]
+#[allow(dead_code, ineffective_unstable_trait_impl)]
 #[cxx::bridge(namespace = "monarch")]
 pub(crate) mod ffi {
     unsafe extern "C++" {

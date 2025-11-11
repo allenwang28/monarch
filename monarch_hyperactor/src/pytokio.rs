@@ -270,23 +270,20 @@ fn send_result(
     traceback: Option<PyObject>,
 ) {
     // a SendErr just means that there are no consumers of the value left.
-    match tx.send(Some(result)) {
-        Err(tokio::sync::watch::error::SendError(Some(Err(pyerr)))) => {
-            Python::with_gil(|py| {
-                let tb = if let Some(tb) = traceback {
-                    format_traceback(py, &tb).unwrap()
-                } else {
-                    "None (run with `MONARCH_HYPERACTOR_ENABLE_UNAWAITED_PYTHON_TASK_TRACEBACK=1` to see a traceback here)\n".into()
-                };
-                tracing::error!(
-                    "PythonTask errored but is not being awaited; this will not crash your program, but indicates that \
-                    something went wrong.\n{}\nTraceback where the task was created (most recent call last):\n{}",
-                    SerializablePyErr::from(py, &pyerr),
-                    tb
-                );
-            });
-        }
-        _ => {}
+    if let Err(tokio::sync::watch::error::SendError(Some(Err(pyerr)))) = tx.send(Some(result)) {
+        Python::with_gil(|py| {
+            let tb = if let Some(tb) = traceback {
+                format_traceback(py, &tb).unwrap()
+            } else {
+                "None (run with `MONARCH_HYPERACTOR_ENABLE_UNAWAITED_PYTHON_TASK_TRACEBACK=1` to see a traceback here)\n".into()
+            };
+            tracing::error!(
+                "PythonTask errored but is not being awaited; this will not crash your program, but indicates that \
+                something went wrong.\n{}\nTraceback where the task was created (most recent call last):\n{}",
+                SerializablePyErr::from(py, &pyerr),
+                tb
+            );
+        });
     };
 }
 

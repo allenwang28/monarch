@@ -265,8 +265,8 @@ impl Child {
     }
 
     fn ensure_killed(pid: Arc<std::sync::Mutex<Option<i32>>>) {
-        if let Some(pid) = pid.lock().unwrap().take() {
-            if let Err(e) = signal::kill(Pid::from_raw(pid), signal::SIGTERM) {
+        if let Some(pid) = pid.lock().unwrap().take()
+            && let Err(e) = signal::kill(Pid::from_raw(pid), signal::SIGTERM) {
                 match e {
                     nix::errno::Errno::ESRCH => {
                         // Process already gone.
@@ -277,7 +277,6 @@ impl Child {
                     }
                 }
             }
-        }
     }
 
     fn exit_status_to_reason(result: io::Result<ExitStatus>) -> ProcStopReason {

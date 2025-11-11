@@ -84,13 +84,12 @@ impl<M: RemoteMessage> Tx<M> for LocalTx<M> {
                 return;
             }
         };
-        if self.tx.send(data).is_err() {
-            if let Some(return_channel) = return_channel {
+        if self.tx.send(data).is_err()
+            && let Some(return_channel) = return_channel {
                 return_channel
                     .send(SendError(ChannelError::Closed, message))
                     .unwrap_or_else(|m| tracing::warn!("failed to deliver SendError: {}", m));
             }
-        }
     }
 
     fn addr(&self) -> ChannelAddr {

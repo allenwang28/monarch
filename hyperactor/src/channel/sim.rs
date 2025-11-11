@@ -312,15 +312,14 @@ impl<M: RemoteMessage + Any> Tx<M> for SimTx<M> {
                     }),
                     _ => handle.send_event(event),
                 };
-                if let Err(err) = result {
-                    if let Some(return_channel) = return_channel {
+                if let Err(err) = result
+                    && let Some(return_channel) = return_channel {
                         return_channel
                             .send(SendError(err.into(), message))
                             .unwrap_or_else(|m| {
                                 tracing::warn!("failed to deliver SendError: {}", m)
                             });
                     }
-                }
             }
             Err(err) => {
                 if let Some(return_channel) = return_channel {

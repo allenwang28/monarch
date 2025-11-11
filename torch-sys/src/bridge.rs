@@ -10,7 +10,7 @@ use crate::IValue;
 use crate::backend::BoxedBackend;
 use crate::backend::BoxedWork;
 
-#[allow(dead_code)]
+#[allow(dead_code, ineffective_unstable_trait_impl)]
 #[cxx::bridge(namespace = "monarch")]
 pub(crate) mod ffi {
     // These are here to instruct the CXX codegen to generate concrete

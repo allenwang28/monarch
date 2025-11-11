@@ -1441,13 +1441,11 @@ impl<S: AsyncRead + AsyncWrite + Send + 'static + Unpin> ServerConn<S> {
 
         let mut final_ack = final_next.ack;
         // Flush any ongoing write.
-        if self.write_state.is_writing() {
-            if let Ok(acked_seq) = self.write_state.send().await {
-                if acked_seq > final_ack {
+        if self.write_state.is_writing()
+            && let Ok(acked_seq) = self.write_state.send().await
+                && acked_seq > final_ack {
                     final_ack = acked_seq;
-                }
-            };
-        }
+                };
         // best effort: "flush" any remaining ack before closing this session
         if self.write_state.is_idle() && final_ack < final_next.seq {
             let Ok(writer) = replace(&mut self.write_state, WriteState::Broken).into_idle() else {

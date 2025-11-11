@@ -32,7 +32,7 @@ use crate::v1::host_mesh::PyHostMesh;
 #[pyo3(signature = ())]
 pub fn bootstrap_main(py: Python) -> PyResult<Bound<PyAny>> {
     // SAFETY: this is a correct use of this function.
-    let _ = unsafe {
+    unsafe {
         fbinit::perform_init();
     };
 

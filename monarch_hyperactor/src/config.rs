@@ -86,7 +86,7 @@ where
 {
     // Well, it can't fail unless there's a bug in the code in this file.
     let key = key.downcast_ref::<T>().expect("cannot fail");
-    let val: Option<P> = hyperactor::config::global::try_get_cloned(key.clone())
+    let val: Option<P> = hyperactor::config::global::try_get_cloned(*key)
         .map(|v| v.try_into())
         .transpose()?;
     val.map(|v| v.into_py_any(py)).transpose()
@@ -96,7 +96,7 @@ fn set_global_config<T: AttrValue + Debug>(key: &'static dyn ErasedKey, value: T
     // Again, can't fail unless there's a bug in the code in this file.
     let key = key.downcast_ref().expect("cannot fail");
     let mut attrs = Attrs::new();
-    attrs.set(key.clone(), value);
+    attrs.set(*key, value);
     hyperactor::config::global::set(Source::Runtime, attrs);
     Ok(())
 }

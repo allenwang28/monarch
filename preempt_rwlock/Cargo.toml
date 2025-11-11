@@ -4,11 +4,10 @@
 name = "preempt_rwlock"
 version = "0.0.0"
 authors = ["Meta"]
-edition = "2021"
+edition = "2024"
 license = "BSD-3-Clause"
 
 [lib]
-edition = "2024"
 
 [dependencies]
 tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

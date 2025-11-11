@@ -629,22 +629,19 @@ impl ActorMeshProtocol for AsyncActorMesh {
                 _ => None,
             };
             let result = async { mesh.await?.cast(message, selection, &instance) }.await;
-            match (port, result) {
-                (Some(p), Err(pyerr)) => Python::with_gil(|py: Python<'_>| {
-                    let port_ref = match p {
-                        EitherPortRef::Once(p) => p.into_bound_py_any(py),
-                        EitherPortRef::Unbounded(p) => p.into_bound_py_any(py),
-                    }
+            if let (Some(p), Err(pyerr)) = (port, result) { Python::with_gil(|py: Python<'_>| {
+                let port_ref = match p {
+                    EitherPortRef::Once(p) => p.into_bound_py_any(py),
+                    EitherPortRef::Unbounded(p) => p.into_bound_py_any(py),
+                }
+                .unwrap();
+                let port = py
+                    .import("monarch._src.actor.actor_mesh")
+                    .unwrap()
+                    .call_method1("Port", (port_ref, instance, 0))
                     .unwrap();
-                    let port = py
-                        .import("monarch._src.actor.actor_mesh")
-                        .unwrap()
-                        .call_method1("Port", (port_ref, instance, 0))
-                        .unwrap();
-                    port.call_method1("exception", (pyerr.value(py),)).unwrap();
-                }),
-                _ => (),
-            }
+                port.call_method1("exception", (pyerr.value(py),)).unwrap();
+            }) }
         });
         Ok(())
     }

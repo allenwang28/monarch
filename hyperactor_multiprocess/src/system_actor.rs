@@ -901,14 +901,14 @@ impl HeartbeatRecord {
         // Remove previous entry in btree_index if exists.
         if let Some(update_time) = self.proc_last_update_time.get(proc_id) {
             self.btree_index
-                .remove(&(update_time.clone(), proc_id.clone()));
+                .remove(&(*update_time, proc_id.clone()));
         }
 
         // Insert new entry into btree_index.
         let now = clock.now();
         self.proc_last_update_time
-            .insert(proc_id.clone(), now.clone());
-        self.btree_index.insert((now.clone(), proc_id.clone()));
+            .insert(proc_id.clone(), now);
+        self.btree_index.insert((now, proc_id.clone()));
     }
 
     // Find all the procs with expired heartbeat, and mark them as expired in
@@ -1203,7 +1203,7 @@ impl Actor for SystemActor {
     type Params = SystemActorParams;
 
     async fn new(params: SystemActorParams) -> Result<Self, anyhow::Error> {
-        let supervision_update_timeout = params.supervision_update_timeout.clone();
+        let supervision_update_timeout = params.supervision_update_timeout;
         Ok(Self {
             params,
             supervision_state: SystemSupervisionState::new(supervision_update_timeout),

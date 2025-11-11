@@ -37,7 +37,7 @@ pub enum PyChannelTransport {
 #[pymethods]
 impl PyChannelTransport {
     fn get(&self) -> Self {
-        self.clone()
+        *self
     }
 }
 

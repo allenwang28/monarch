@@ -166,7 +166,7 @@ pub fn global_root_client() -> &'static Instance<()> {
         let client_proc = Proc::direct_with_default(
             ChannelAddr::any(default_transport()),
             "mesh_root_client_proc".into(),
-            router::global().clone().boxed(),
+            (*router::global()).clone().boxed(),
         )
         .unwrap();
 

@@ -97,7 +97,6 @@ use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::registry::LookupSpan;
 
 use crate::recorder::Recorder;
-use crate::sqlite::get_reloadable_sqlite_layer;
 
 pub trait TelemetryClock {
     fn now(&self) -> tokio::time::Instant;

@@ -18,7 +18,6 @@
 use std::path::PathBuf;
 use std::process::Stdio;
 
-use build_utils::*;
 use cxx_build::CFG;
 use pyo3_build_config::InterpreterConfig;
 

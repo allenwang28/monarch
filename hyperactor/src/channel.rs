@@ -185,13 +185,12 @@ impl<M: RemoteMessage> MpscTx<M> {
 #[async_trait]
 impl<M: RemoteMessage> Tx<M> for MpscTx<M> {
     fn do_post(&self, message: M, return_channel: Option<oneshot::Sender<SendError<M>>>) {
-        if let Err(mpsc::error::SendError(message)) = self.tx.send(message) {
-            if let Some(return_channel) = return_channel {
+        if let Err(mpsc::error::SendError(message)) = self.tx.send(message)
+            && let Some(return_channel) = return_channel {
                 return_channel
                     .send(SendError(ChannelError::Closed, message))
                     .unwrap_or_else(|m| tracing::warn!("failed to deliver SendError: {}", m));
             }
-        }
     }
 
     fn addr(&self) -> ChannelAddr {

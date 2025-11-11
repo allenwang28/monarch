@@ -516,16 +516,13 @@ impl<M: RemoteMessage> InstanceWrapper<M> {
 
         if let Some(controller_id) = self.controller_id.get() {
             // Check if there is any pending controller error.
-            match self.controller_error_receiver.has_changed() {
-                Ok(true) => {
-                    let controller_error = self.controller_error_receiver.borrow_and_update();
-                    return Err(ControllerError::Failed(
-                        controller_id.clone(),
-                        controller_error.clone(),
-                    )
-                    .into());
-                }
-                _ => {}
+            if let Ok(true) = self.controller_error_receiver.has_changed() {
+                let controller_error = self.controller_error_receiver.borrow_and_update();
+                return Err(ControllerError::Failed(
+                    controller_id.clone(),
+                    controller_error.clone(),
+                )
+                .into());
             }
 
             // Schedule next check for controller
@@ -661,15 +658,14 @@ async fn check_actor_supervision_state(
     {
         Ok(Ok(Some(world_state))) => {
             // Check if the controller has failed supervision heartbeats
-            if let Some(proc_state) = world_state.procs.get(&actor_id.rank()) {
-                if !matches!(proc_state.proc_health, ProcStatus::Alive) {
+            if let Some(proc_state) = world_state.procs.get(&actor_id.rank())
+                && !matches!(proc_state.proc_health, ProcStatus::Alive) {
                     tracing::error!("controller {:?} is not alive, aborting!", actor_id);
                     // The controller is down, this only affects the mesh for the controller, other meshes
                     // should be unaffected, so we'll raise a worker error for this failure.
                     controller_error_sender
                         .send(format!("controller {:?} is not alive", actor_id))?;
                 }
-            }
         }
         Ok(_) => {
             // The world isn't ready yet, we can safely ignore it

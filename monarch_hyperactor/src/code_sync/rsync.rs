@@ -418,7 +418,7 @@ where
             .err_into::<anyhow::Error>()
             .try_for_each_concurrent(None, |connect| async move {
                 let (mut local, mut stream) = try_join!(
-                    TcpStream::connect(daemon_addr.clone()).err_into(),
+                    TcpStream::connect(*daemon_addr).err_into(),
                     accept(instance, instance.self_id().clone(), connect),
                 )?;
                 tokio::io::copy_bidirectional(&mut local, &mut stream).await?;
